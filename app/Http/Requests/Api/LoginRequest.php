@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Api;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class ApiLoginRequest extends FormRequest
+class LoginRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -14,7 +14,7 @@ class ApiLoginRequest extends FormRequest
     {
         return [
             'email' => 'required|email',
-            'password' => 'required|min:8'
+            'password' => 'required|string|min:8'
         ];
     }
 }
