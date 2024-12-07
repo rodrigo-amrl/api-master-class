@@ -9,12 +9,9 @@ use App\Http\Requests\Api\V1\UpdateTicketRequest;
 
 class TicketController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        return Ticket::all();
     }
 
 
