@@ -22,7 +22,7 @@ class AuthController extends Controller
 
         $user = User::firstWhere('email', $request->email);
         return $this->ok('Authenticated', [
-            'token' => $user->createToken('API Token')->plainTextToken
+            'token' => $user->createToken('API Token', ['*', now()->addDay()])->plainTextToken
         ]);
     }
     public function register()
