@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 abstract class QueryFilter
 {
     protected $builder;
-
+    protected $sortable = [];
     public function __construct(protected Request $request) {}
     public function filter($array)
     {
@@ -29,5 +29,22 @@ abstract class QueryFilter
         }
 
         return $this->builder;
+    }
+    protected function sort($value)
+    {
+        $sorteAttributes = explode(',', $value);
+
+        foreach ($sorteAttributes as $attribute) {
+            $direction = 'asc';
+            if (strpos($attribute, '-') === 0) {
+                $direction = 'desc';
+                $attribute = substr($attribute, 1);
+            }
+            if (!in_array($attribute, $this->sortable) && !array_key_exists($attribute, $this->sortable))
+                continue;
+
+            $columnName = $this->sortable[$attribute] ?? $attribute;
+            $this->builder->orderBy($columnName, $direction);
+        }
     }
 }

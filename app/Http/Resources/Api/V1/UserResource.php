@@ -29,7 +29,7 @@ class UserResource extends JsonResource
             ],
             'includes' => TicketResource::collection($this->whenLoaded('tickets')),
             'links' => [
-                'self' => route('author.show', $this->user_id),
+                'self' => route('authors.show', ['author' => $this->user_id]),
             ],
         ];
     }
