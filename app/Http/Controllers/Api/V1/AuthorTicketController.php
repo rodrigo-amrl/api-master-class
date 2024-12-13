@@ -27,14 +27,7 @@ class AuthorTicketController extends Controller
                 'error' => "The provided user id does not exists"
             ]);
         }
-
-        $model = [
-            'title' => $request->input('data.attributes.title'),
-            'description' => $request->input('data.attributes.description'),
-            'status' => $request->input('data.attributes.status'),
-            'user_id' => $author_id
-        ];
-        return TicketResource::make(Ticket::create($model));
+        return TicketResource::make(Ticket::create($request->mappedAttributes()));
     }
     public function destroy(int $author_id, int $ticket_id)
     {
