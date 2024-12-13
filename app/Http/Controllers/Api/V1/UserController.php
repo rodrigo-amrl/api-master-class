@@ -10,6 +10,7 @@ use App\Http\Resources\Api\V1\UserResource;
 use App\Policies\V1\UserPolicy;
 use App\Traits\ApiResponses;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class UserController extends ApiController
 {
@@ -28,45 +29,49 @@ class UserController extends ApiController
     }
     public function store(StoreUserRequest $request)
     {
-        try {
-            $this->isAble('store', User::class);
-        } catch (AuthorizationException $e) {
-            return $this->error('You are not authorized to update this ticket', 401);
-        }
-        return UserResource::make(User::create($request->mappedAttributes()));
+        if ($this->isAble('store', User::class))
+            return UserResource::make(User::create($request->mappedAttributes()));
+
+        return $this->error('You are not authorized to update this ticket', 401);
     }
     public function update(StoreUserRequest $request, int $user_id)
     {
         try {
             $user = User::findOrFail($user_id);
-            $this->isAble('update', $user);
-        } catch (AuthorizationException $e) {
+            if ($this->isAble('update', $user)) {
+                $user->update($request->mappedAttributes());
+                return new UserResource($user);
+            }
             return $this->error('You are not authorized to update this ticket', 401);
+        } catch (ModelNotFoundException $e) {
+            return $this->error('User not found', 404);
         }
-        $user->update($request->mappedAttributes());
-        return new UserResource($user);
     }
     public function replace(ReplaceUserRequest $request, $user_id)
     {
         try {
             $user = User::findOrFail($user_id);
 
-            $this->isAble('replace', $user);
-            $user->update($request->mappedAttributes());
-            return new UserResource($user);
-        } catch (AuthorizationException $e) {
+            if ($this->isAble('replace', $user)) {
+                $user->update($request->mappedAttributes());
+                return new UserResource($user);
+            }
             return $this->error('You are not authorized to update this ticket', 401);
+        } catch (ModelNotFoundException $e) {
+            return $this->error('User not found', 404);
         }
     }
     public function destroy($user_id)
     {
         try {
             $user = User::findOrFail($user_id);
-            $this->isAble('delete', $user);
-            $user->delete();
-            return $this->success('User deleted successfully');
-        } catch (AuthorizationException $e) {
+            if ($this->isAble('delete', $user)) {
+                $user->delete();
+                return $this->success('User deleted successfully');
+            }
             return $this->error('You are not authorized to delete this ticket', 401);
+        } catch (ModelNotFoundException $e) {
+            return $this->error('User not found', 404);
         }
     }
 }

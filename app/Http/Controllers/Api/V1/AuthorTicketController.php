@@ -21,13 +21,10 @@ class AuthorTicketController extends ApiController
     }
     public function store(StoreTicketRequest $request, $author_id)
     {
+        if ($this->isAble('store', Ticket::class))
+            return TicketResource::make(Ticket::create($request->mappedAttributes(['author' => 'user_id'])));
 
-        try {
-            $this->isAble('store', Ticket::class);
-        } catch (AuthorizationException $e) {
-            return $this->error('You are not authorized to update this ticket', 401);
-        }
-        return TicketResource::make(Ticket::create($request->mappedAttributes(['author' => 'user_id'])));
+        return $this->error('You are not authorized to update this ticket', 401);
     }
     public function destroy(int $author_id, int $ticket_id)
     {
