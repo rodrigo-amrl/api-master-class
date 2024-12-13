@@ -17,12 +17,14 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'is_manager'
     ];
 
 
     protected $hidden = [
         'password',
         'remember_token',
+        'is_manager' => 'boolean'
     ];
 
 

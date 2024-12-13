@@ -29,12 +29,16 @@ class StoreTicketRequest extends BaseTicketRequest
 
         ];
 
-        if ($this->routeIs('tickets.store')) {
-            if ($this->user()->tokenCan(Abilities::CreateOwnTicket))
-                $rules['data.relationships.author.data.id'] .= '|size:' . $this->user()->id;
-        }
+        if ($this->user()->tokenCan(Abilities::CreateOwnTicket))
+            $rules['data.relationships.author.data.id'] .= '|size:' . $this->user()->id;
 
 
         return $rules;
+    }
+    protected function prepareForValidation()
+    {
+
+        if ($this->routeIs('author.tickets.store'))
+            $this->merge(['data.relationships.author.data.id' => $this->route('autor')]);
     }
 }

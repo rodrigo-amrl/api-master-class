@@ -4,24 +4,26 @@ namespace App\Http\Requests\Api\V1;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class BaseTicketRequest extends FormRequest
+class BaseUserRequest extends FormRequest
 {
 
     public function mappedAttributes(array $otherAttributes = [])
     {
         $attributesMap =   array_merge([
-            'data.attributes.title' => 'title',
-            'data.attributes.description' => 'description',
-            'data.attributes.status' => 'status',
-            'data.attributes.createdAt' => 'created_at',
-            'data.attributes.updatedAt' => 'updated_at',
-            'data.relationships.author.data.id' => "user_id"
+            'data.attributes.name' => 'name',
+            'data.attributes.email' => 'email',
+            'data.attributes.isManager' => 'is_manager',
+            'data.attributes.password' => 'password',
         ], $otherAttributes);
 
         $attributesToUpdate = [];
         foreach ($attributesMap as $key => $attribute) {
-            if ($this->has($key))
+            if ($this->has($key)) {
                 $attributesToUpdate[$attribute] = $this->input($key);
+                if ($attribute == 'password') {
+                    $attributesToUpdate[$attribute] = bcrypt($this->input($key));
+                }
+            }
         }
         return $attributesToUpdate;
     }

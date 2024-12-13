@@ -9,25 +9,25 @@ use App\Http\Resources\Api\V1\TicketResource;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Traits\ApiResponses;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
-class AuthorTicketController extends Controller
+class AuthorTicketController extends ApiController
 {
     use ApiResponses;
     public function index($author_id, TicketFilter $filters)
     {
         return TicketResource::collection(Ticket::where('user_id', $author_id)->filter($filters)->paginate());
     }
-    public function store($author_id, StoreTicketRequest $request)
+    public function store(StoreTicketRequest $request, $author_id)
     {
+
         try {
-            User::findOrFail($author_id);
-        } catch (ModelNotFoundException $e) {
-            return $this->ok('User not Found', [
-                'error' => "The provided user id does not exists"
-            ]);
+            $this->isAble('store', Ticket::class);
+        } catch (AuthorizationException $e) {
+            return $this->error('You are not authorized to update this ticket', 401);
         }
-        return TicketResource::make(Ticket::create($request->mappedAttributes()));
+        return TicketResource::make(Ticket::create($request->mappedAttributes(['author' => 'user_id'])));
     }
     public function destroy(int $author_id, int $ticket_id)
     {

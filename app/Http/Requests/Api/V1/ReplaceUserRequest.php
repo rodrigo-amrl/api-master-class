@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Requests\Api\V1;;
+namespace App\Http\Requests\Api\V1;
 
-class StoreUserRequest extends BaseUserRequest
+class ReplaceUserRequest extends BaseUserRequest
 {
+
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
     public function rules(): array
     {
@@ -16,6 +17,7 @@ class StoreUserRequest extends BaseUserRequest
             'data.attributes.isManager' => 'required|boolean',
             'data.attributes.password' => 'required|string',
         ];
+
         return $rules;
     }
 }
