@@ -9,13 +9,15 @@ use App\Http\Requests\Api\V1\StoreTicketRequest;
 use App\Http\Requests\Api\V1\UpdateTicketRequest;
 use App\Http\Resources\Api\V1\TicketResource;
 use App\Models\User;
+use App\Policies\V1\TicketPolicy;
 use App\Traits\ApiResponses;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class TicketController extends ApiController
 {
     use ApiResponses;
-
+    protected $policyClass = TicketPolicy::class;
     public function index(TicketFilter $filters)
     {
         return TicketResource::collection(Ticket::filter($filters)->paginate());
@@ -24,6 +26,7 @@ class TicketController extends ApiController
     {
         try {
             User::findOrFail($request->input('data.relationships.author.data.id'));
+            $this->isAble('store', null);
         } catch (ModelNotFoundException $e) {
             return $this->ok('User not Found', [
                 'error' => "The provided user id does not exists"
@@ -49,17 +52,20 @@ class TicketController extends ApiController
         try {
             $ticket = Ticket::findOrFail($ticket_id);
 
-
+            $this->isAble('update', $ticket);
             $ticket->update($request->mappedAttributes());
             return TicketResource::make($ticket);
         } catch (ModelNotFoundException $e) {
             return $this->error('Ticket cannot be Found', 404);
+        } catch (AuthorizationException $e) {
+            return $this->error('You are not authorized to update this ticket', 401);
         }
     }
     public function replace(ReplaceTicketRequest $request, int $ticket_id)
     {
         try {
             $ticket = Ticket::findOrFail($ticket_id);
+            $this->isAble('replace', $ticket);
             $ticket->update($request->mappedAttributes());
             return TicketResource::make($ticket);
         } catch (ModelNotFoundException $e) {
@@ -71,6 +77,7 @@ class TicketController extends ApiController
 
         try {
             $ticket = Ticket::findOrFail($ticket_id);
+            $this->isAble('delete', $ticket);
             $ticket->delete();
             return $this->ok('Ticket deleted');
         } catch (ModelNotFoundException $e) {
