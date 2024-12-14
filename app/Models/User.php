@@ -39,8 +39,4 @@ class User extends Authenticatable
     {
         return $this->hasMany(Ticket::class);
     }
-    public function scopeFilter(Builder $builder, UserFilter $filters)
-    {
-        return $filters->apply($builder);
-    }
 }
