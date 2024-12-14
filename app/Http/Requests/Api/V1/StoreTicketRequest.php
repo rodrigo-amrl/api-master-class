@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Api\V1;
 
 use App\Permissions\V1\Abilities;
+use Illuminate\Support\Facades\Auth;
 
 class StoreTicketRequest extends BaseTicketRequest
 {
@@ -27,11 +28,11 @@ class StoreTicketRequest extends BaseTicketRequest
             'data.attributes.title' => 'required|string',
             'data.attributes.description' => 'required|string',
             'data.attributes.status' => 'required|string|in:A,C,H,X',
-            $authorIdAttr => $authorRule . '|size' . $this->user()->id,
+            $authorIdAttr => $authorRule . '|size' . Auth::user()->id,
 
         ];
 
-        if ($this->user()->tokenCan(Abilities::CreateOwnTicket))
+        if (Auth::user()->tokenCan(Abilities::CreateOwnTicket))
             $rules['data.relationships.author.data.id'] = $authorRule;
 
         return $rules;
