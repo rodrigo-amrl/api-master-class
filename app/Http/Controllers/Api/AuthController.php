@@ -13,6 +13,14 @@ use Illuminate\Support\Facades\Auth;
 class AuthController extends Controller
 {
     use ApiResponses;
+    /**
+     * Login
+     * 
+     * Authenticate the user and returns the user's API token
+     * @unauthenticated
+     * @group Authentication
+     * @response 200 {"data": {"token":"{YOUR_TOKEN}","message":"Authenticated","status":200}}
+     */
     public function login(LoginRequest $request)
 
     {
@@ -30,6 +38,14 @@ class AuthController extends Controller
     {
         return $this->ok('register');
     }
+    /**
+     * Logout
+     * 
+     * Signs out the user and destroy's the API  token.
+     * 
+     * @group Authentication
+     * @response 200 {}
+     */
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();

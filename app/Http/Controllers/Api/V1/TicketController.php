@@ -15,10 +15,25 @@ class TicketController extends ApiController
 {
     use ApiResponses;
     protected $policyClass = TicketPolicy::class;
+    /**
+     * Get All Tickets
+     *
+     * @group Managing Tickets
+     * @queryParam sort string Data fild(s) to sort by. Separate multiple fields with commas. Denote descending sort with a minus sign. Example: sort=title,-createdAt
+     * @queryParam filter[status] Filter by status code: A, C, H, X. No-example
+     * @queryParam filter[title] Filter by title. Wildcards are supported. Example: *fix*
+     */
     public function index(TicketFilter $filters)
     {
         return TicketResource::collection(Ticket::filter($filters)->paginate());
     }
+    /**
+     * Create a tickets
+     * 
+     * Creates a new ticket. Users can only create tickets for themselves. Managers can create tickets for any user.
+     *
+     * @group Managing Tickets
+     */
     public function store(StoreTicketRequest $request)
     {
         if ($this->isAble('store', Ticket::class))
